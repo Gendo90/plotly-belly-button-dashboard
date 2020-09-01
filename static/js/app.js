@@ -10,12 +10,13 @@ function addOptions(all_data) {
     for (let i = 0; i < sample_names.length; i++) {
         select_element.append("option").property("value", sample_names[i]).text(sample_names[i])
     }
+    console.log(all_data)
 }
 
 // add all sample names to options from the loaded sample data
 addOptions(all_data);
 
-
+// updates the metatable data for the sample upon selecting a new value
 function updateMetaTable(val) {
     let newMetaData = all_data["metadata"].filter(a => a.id === parseInt(val))
     d3.select("#sample-metadata").html("")
@@ -25,7 +26,52 @@ function updateMetaTable(val) {
     console.log(newMetaData[0])
 }
 
+// updates the bar chart to the new sample whenever a new sample is selected
+function updateBarChart(val) {
+    let newSampleData = all_data["samples"].filter(a => a.id === val)[0]
+    // join together the values for each of the keys into arrays of size 3, so
+    // they remain together when sorted and then are returned 
+    let joinedSampleValues = [];
+    // assume that there corresponding values for ids, labels, and values - that is, they are all the same length
+    // for each sample name
+    for (let i = 0; i < newSampleData.otu_ids.length; i++) {
+        joinedSampleValues.push([newSampleData.otu_ids[i], newSampleData.otu_labels[i], newSampleData.sample_values[i]])
+    }
+
+    // sorting comparison function for use with JS built-in sort function- should return the largest 10 samples
+    // as the first 10 values of the sorted joinSampleValues array
+    function largestSamples(a, b) {
+        return b[2]-a[2];
+    }
+
+    // sort based on sample size, largest first
+    joinedSampleValues.sort(largestSamples)
+
+    // split first 10 arrays into separate arrays for use with Plotly to make a bar chart
+    let otu_ids = [];
+    let otu_labels = [];
+    let value_count = [];
+    for (let i = 0; i < 10; i++) {
+        otu_ids.push("OTU " + joinedSampleValues[i][0]);
+        otu_labels.push(joinedSampleValues[i][1]);
+        value_count.push(joinedSampleValues[i][2]);
+    }
+
+    // format chart data correctly for horizontal chart in Plotly
+    let data = [{
+        x: value_count,
+        y: otu_ids,
+        type: "bar", 
+        text: otu_labels,
+        orientation: 'h'
+    }]
+
+    //put into Plotly to make a new bar chart!
+    Plotly.newPlot("bar", data)
+}
+
 // this function should update the plots and demographic info depending on the option's new value!
 function optionChanged(val) {
     updateMetaTable(val);
+    updateBarChart(val);
 }
