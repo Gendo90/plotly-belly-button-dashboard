@@ -105,3 +105,8 @@ function optionChanged(val) {
     updateBarChart(val);
     updateBubbleChart(val);
 }
+
+// initialize charts to show value for first option that can be selected
+// code runs only once when this file is first added to the page and run
+let firstVal = d3.select("option").property("value")
+optionChanged(firstVal)
