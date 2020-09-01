@@ -47,11 +47,14 @@ function updateBarChart(val) {
     // sort based on sample size, largest first
     joinedSampleValues.sort(largestSamples)
 
+    // determine if 10 values or less for sample values for this sample name
+    let num_samples = (joinedSampleValues.length >= 10 ? 10 : joinedSampleValues.length);
+
     // split first 10 arrays into separate arrays for use with Plotly to make a bar chart
     let otu_ids = [];
     let otu_labels = [];
     let value_count = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < num_samples; i++) {
         otu_ids.push("OTU " + joinedSampleValues[i][0]);
         otu_labels.push(joinedSampleValues[i][1]);
         value_count.push(joinedSampleValues[i][2]);
@@ -70,8 +73,35 @@ function updateBarChart(val) {
     Plotly.newPlot("bar", data)
 }
 
+// create a function to plot the bubble chart
+function updateBubbleChart(val) {
+    let bubbleInfo = all_data["samples"].filter(a => a.id === val)[0]
+
+    data = [{
+        x: bubbleInfo.otu_ids,
+        y: bubbleInfo.sample_values,
+        mode: "markers",
+        marker: {
+            size: bubbleInfo.sample_values, 
+            color: bubbleInfo.otu_ids
+        },
+        text: bubbleInfo.otu_labels
+    }]
+
+    layout = {
+        xaxis: {
+            title: {
+                text: "OTU ID"
+            }
+        }
+    }
+
+    Plotly.newPlot("bubble", data, layout)
+}
+
 // this function should update the plots and demographic info depending on the option's new value!
 function optionChanged(val) {
     updateMetaTable(val);
     updateBarChart(val);
+    updateBubbleChart(val);
 }
