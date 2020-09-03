@@ -133,7 +133,7 @@ function updateGaugeChart(val) {
             yref: 'paper',
             x: 0.5,
             // xanchor: 'middle',
-            y: 0.3,
+            y: 0.25,
             yanchor: 'top',
             text: `Scrub${scrubTextPlural} per Week`,
             showarrow: false
