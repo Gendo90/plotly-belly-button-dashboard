@@ -99,11 +99,53 @@ function updateBubbleChart(val) {
     Plotly.newPlot("bubble", data, layout)
 }
 
+// function to update the gauge chart given a value
+function updateGaugeChart(val) {
+    let bellyButtonWashes = all_data["metadata"].filter(a => a.id === parseInt(val))[0]["wfreq"]
+
+    // assume no belly button washes if null
+    bellyButtonWashes = typeof(bellyButtonWashes) === 'number' ? bellyButtonWashes : 0;
+
+    let data = [
+        {
+            domain: { x: [0, 1], y: [0, 1] },
+            value: bellyButtonWashes,
+            title: { text: "Belly Button Washing Frequency" },
+            type: "indicator",
+            mode: "gauge+number",
+            gauge: {
+                axis: {
+                    range: [0, 9],
+                    tickmode: "array",
+                    tickvals: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                    ticktext: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                }
+            }
+        }
+    ];
+
+    // text for scrubs per week depending on value of bellyButtonWashes
+    let scrubTextPlural = bellyButtonWashes === 1 ? "" : "s";
+
+    Plotly.newPlot("gauge", data, {"annotations": 
+        [{
+            xref: 'paper',
+            yref: 'paper',
+            x: 0.5,
+            // xanchor: 'middle',
+            y: 0.3,
+            yanchor: 'top',
+            text: `Scrub${scrubTextPlural} per Week`,
+            showarrow: false
+        }]})
+}
+
 // this function should update the plots and demographic info depending on the option's new value!
 function optionChanged(val) {
     updateMetaTable(val);
     updateBarChart(val);
     updateBubbleChart(val);
+    updateGaugeChart(val);
 }
 
 // initialize charts to show value for first option that can be selected
